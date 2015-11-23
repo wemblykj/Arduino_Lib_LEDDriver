@@ -1,6 +1,8 @@
 #include "ILEDController.h"
 #include "IRGBController.h"
 
+#include "Common.h"
+
 // Set default custom resolution, can be overridden by sketch
 #ifndef CUSTOM_RESOLUTION
 #define CUSTOM_RESOLUTION 512

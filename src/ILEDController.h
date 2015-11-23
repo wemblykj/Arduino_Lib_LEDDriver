@@ -7,6 +7,8 @@
 #include "IController.h"
 #include "ILEDIntensity.h"
 
+#include "Common.h"
+
 namespace LEDDriver {
 
 class ILEDController : virtual public ILEDIntensity, virtual public IController

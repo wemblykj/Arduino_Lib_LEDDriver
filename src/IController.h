@@ -4,11 +4,7 @@
 #ifndef _ICONTROLLER_h
 #define _ICONTROLLER_h
 
-#include <Arduino.h>
-
 namespace LEDDriver {
-
-typedef uint8_t pin_t;
 
 class IController
 {

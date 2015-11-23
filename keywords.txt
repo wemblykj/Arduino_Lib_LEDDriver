@@ -11,8 +11,6 @@ ILEDController	KEYWORD1
 ILEDIntensity	  KEYWORD1
 IRGBController	KEYWORD1
 IRGBIntensity	  KEYWORD1
-LEDDriver   	  KEYWORD1
-
 
 #######################################
 # Methods and Functions (KEYWORD2)

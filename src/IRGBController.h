@@ -8,6 +8,8 @@
 #include "ILEDIntensity.h"
 #include "IRGBIntensity.h"
 
+#include "Common.h"
+
 namespace LEDDriver {
 
 class IRGBController : virtual public IRGBIntensity, virtual public ILEDIntensity, virtual public IController
