@@ -1,5 +1,7 @@
 #include <LEDDriver.h>
 
+using namespace LEDDriver;
+
 const int LED_PIN = 13;
 
 ILEDController* ledController;
@@ -8,7 +10,7 @@ float step = 0.1f;
 
 void setup() {
   // Create a new LED controller to drive the LED
-  ILEDController* ledController = LEDDriver::createLEDController(LED_PIN, LEDDriver::Low);
+  ILEDController* ledController = createLEDController(LED_PIN, Low);
 }
 
 void loop() {

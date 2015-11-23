@@ -4,6 +4,8 @@
 #ifndef _IRGBINTENSITY_h
 #define _IRGBINTENSITY_h
 
+namespace LEDDriver {
+
 //! An interface for manipulating the red, green and blue intensities of an LED
 class IRGBIntensity
 {
@@ -27,5 +29,7 @@ public:
   //! Set the blue intensity to \p b
   virtual void setBlue(float b) = 0;
 };
+
+} // namespace LEDDriver
 
 #endif // _IRGBINTENSITY_h

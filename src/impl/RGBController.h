@@ -6,6 +6,8 @@
 
 #include "../IRGBController.h"
 
+namespace LEDDriver {
+
 template<typename T_StorageType, uint16_t T_IntensityLevels>
 class RGBController : virtual public IRGBController
 {
@@ -191,5 +193,7 @@ void RGBController<T_StorageType, T_IntensityLevels>::setRGB(T_StorageType r, T_
 {
   setRGBI(r, g, b, mMasterIntensity);
 }
+
+} // namespace LEDDriver
 
 #endif // _RGBCONTROLLER_h

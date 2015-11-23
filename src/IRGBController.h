@@ -8,6 +8,8 @@
 #include "ILEDIntensity.h"
 #include "IRGBIntensity.h"
 
+namespace LEDDriver {
+
 class IRGBController : virtual public IRGBIntensity, virtual public ILEDIntensity, virtual public IController
 {
 public:
@@ -27,5 +29,7 @@ public:
   virtual void setRGBI(float r, float g, float b, float i) = 0;
   
 };
+
+} // namespace LEDDriver
 
 #endif // _IRGBCONTROLLER_h

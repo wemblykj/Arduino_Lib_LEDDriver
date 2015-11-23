@@ -1,5 +1,7 @@
 #include <LEDDriver.h>
 
+using namespace LEDDriver;
+
 const int R_PIN = 5;
 const int G_PIN = 6;
 const int B_PIN = 9;
@@ -13,7 +15,7 @@ void setup() {
   // Define the hardware pins for driving R, G and B
   IRGBController::PinDescriptor pd(R_PIN, G_PIN, B_PIN);
   // Create a new RGB controller
-  IRGBController* rgbController = LEDDriver::createRGBController(pd, LEDDriver::Low);
+  IRGBController* rgbController = createRGBController(pd, Low);
 }
 
 void loop() {

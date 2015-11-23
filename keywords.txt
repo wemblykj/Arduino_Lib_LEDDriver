@@ -8,7 +8,10 @@
 
 IController	    KEYWORD1
 ILEDController	KEYWORD1
+ILEDIntensity	  KEYWORD1
 IRGBController	KEYWORD1
+IRGBIntensity	  KEYWORD1
+LEDDriver   	  KEYWORD1
 
 
 #######################################
@@ -16,24 +19,34 @@ IRGBController	KEYWORD1
 #######################################
 
 # methods names in common
-#begin	KEYWORD2
 
 # IController interface
-reset	KEYWORD2
+reset	        KEYWORD2
 
 # ILEDController interface
+getPin        KEYWORD2
+
+# ILEDIntensity interface
+getIntensity	KEYWORD2
 setIntensity	KEYWORD2
 
 # IRGBController interface
+getPins   KEYWORD2
+setRGBI   KEYWORD2
+
+# IRGBIntensity interface
+getRGB	  KEYWORD2
 setRGB	  KEYWORD2
+getRed    KEYWORD2
 setRed    KEYWORD2
+getGreen  KEYWORD2
 setGreen  KEYWORD2
+getBlue   KEYWORD2
 setBlue   KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
 
-#FILE_READ	LITERAL1
-#FILE_WRITE	LITERAL1
-#FILE_APPEND	LITERAL1
+Resolution          LITERAL1
+CUSTOM_RESOLUTION   LITERAL1

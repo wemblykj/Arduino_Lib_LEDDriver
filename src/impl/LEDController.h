@@ -6,6 +6,8 @@
 
 #include "../ILEDController.h"
 
+namespace LEDDriver {
+
 template<typename T_StorageType, uint16_t T_IntensityLevels>
 class LEDController : virtual public ILEDController
 {
@@ -83,5 +85,7 @@ void LEDController<T_StorageType, T_IntensityLevels>::setIntensity(T_StorageType
   mIntensity = i;
   update();
 }
+
+} // namespace LEDDriver
 
 #endif // _LEDCONTROLLER_h

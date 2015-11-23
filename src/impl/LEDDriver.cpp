@@ -5,7 +5,9 @@
 
 #include "Arduino.h"
 
-IRGBController* LEDDriver::createRGBController(const IRGBController::PinDescriptor& pd, const Resolution& res)
+namespace LEDDriver {
+
+IRGBController* createRGBController(const IRGBController::PinDescriptor& pd, const Resolution& res)
 {
   switch (res) {
     case Low:
@@ -29,7 +31,7 @@ IRGBController* LEDDriver::createRGBController(const IRGBController::PinDescript
   return nullptr;
 }
 
-ILEDController* LEDDriver::createLEDController(const pin_t& pin, const Resolution& res)
+ILEDController* createLEDController(const pin_t& pin, const Resolution& res)
 {
   switch (res) {
     case Low:
@@ -52,3 +54,5 @@ ILEDController* LEDDriver::createLEDController(const pin_t& pin, const Resolutio
   
   return nullptr;
 }
+
+} // namespace LEDDriver

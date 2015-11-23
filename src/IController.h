@@ -6,6 +6,8 @@
 
 #include <Arduino.h>
 
+namespace LEDDriver {
+
 typedef uint8_t pin_t;
 
 class IController
@@ -13,5 +15,7 @@ class IController
 public:
   virtual void reset() = 0;
 };
+
+} // namespace LEDDriver
 
 #endif // _ICONTROLLER_h
