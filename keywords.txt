@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map For LEDDriver
+#######################################
+
+#######################################
+# Class (KEYWORD1)
+#######################################
+
+IController	    KEYWORD1
+ILEDController	KEYWORD1
+IRGBController	KEYWORD1
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+# methods names in common
+#begin	KEYWORD2
+
+# IController interface
+reset	KEYWORD2
+
+# ILEDController interface
+setIntensity	KEYWORD2
+
+# IRGBController interface
+setRGB	  KEYWORD2
+setRed    KEYWORD2
+setGreen  KEYWORD2
+setBlue   KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+#FILE_READ	LITERAL1
+#FILE_WRITE	LITERAL1
+#FILE_APPEND	LITERAL1
