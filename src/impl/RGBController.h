@@ -4,10 +4,10 @@
 #ifndef _RGBCONTROLLER_h
 #define _RGBCONTROLLER_h
 
-#include "../IRGBController.h"
-#include "ResolutionPolicies.h"
+#include "..\leddriver\IRGBController.h"
+#include "..\leddriver\ResolutionPolicies.h"
 
-#include "Common.h"
+#include "..\leddriver\Common.h"
 
 namespace LEDDriver {
 

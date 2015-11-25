@@ -1,7 +1,7 @@
-#include "ILEDController.h"
-#include "IRGBController.h"
+#include "leddriver/ILEDController.h"
+#include "leddriver/IRGBController.h"
 
-#include "Common.h"
+#include "leddriver/Common.h"
 
 // Set default custom resolution, can be overridden by sketch
 #ifndef CUSTOM_RESOLUTION
