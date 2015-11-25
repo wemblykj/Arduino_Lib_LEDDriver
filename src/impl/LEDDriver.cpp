@@ -3,52 +3,60 @@
 #include "LEDController.h"
 #include "RGBController.h"
 
+#include "ResolutionPolicies.h"
+
 #include "Arduino.h"
 
 namespace LEDDriver {
 
-IRGBController* createRGBController(const IRGBController::PinDescriptor& pd, const Resolution& res)
+#define CREATE_CONTROLLER_CASE(controllerType, hardwareRes, controllerRes, controllerStorageType, controllerArg) \
+    case controllerRes: \
+      return new controllerType\
+        <\
+          hardwareRes, controllerRes, controllerStorageType,\
+          DefaultHardwareResolutionPolicy,\
+          DefaultSoftwareResolutionPolicy\
+        >(controllerArg);
+        
+IRGBController* createRGBController(const IRGBController::PinDescriptor& pd, uint8_t bitRes)
 {
-  switch (res) {
-    case Low:
-      return new RGBController<uint8_t, Low>(pd);
+  assert((bitRes <= 16) && "resolution must be 16 bits or less");
+  
+  // TODO: Determine hardware resolution from architecture and allocated pin numbers
+  static const uint8_t hardware_res = 8;
+
+  // TODO: Refactor common functionality into template class if possible
+  switch (bitRes) {
+    CREATE_CONTROLLER_CASE(RGBController, hardware_res, 2, uint8_t, pd)
+    CREATE_CONTROLLER_CASE(RGBController, hardware_res, 4, uint8_t, pd)
+    CREATE_CONTROLLER_CASE(RGBController, hardware_res, 8, uint8_t, pd)
+    CREATE_CONTROLLER_CASE(RGBController, hardware_res, 10, uint16_t, pd)
+    CREATE_CONTROLLER_CASE(RGBController, hardware_res, 12, uint16_t, pd)
+    CREATE_CONTROLLER_CASE(RGBController, hardware_res, 16, uint16_t, pd)
+    default:
+      assert(! "resolution must be either 2, 4, 8, 10, 12 or 16 bits");
       break;
-    case Medium:
-      return new RGBController<uint16_t, Medium>(pd);
-      break;
-    case High:
-      return new RGBController<uint16_t, High>(pd);
-      break;
-    case Custom:
-      static_assert((Custom <= 65536), "custom resolution must be 65536 or less");
-      if (Custom <= 256)
-        return new RGBController<uint8_t, Custom>(pd);
-      else
-        return new RGBController<uint16_t, Custom>(pd);
-      break;
-  }
+  };
   
   return nullptr;
 }
 
-ILEDController* createLEDController(const pin_t& pin, const Resolution& res)
+ILEDController* createLEDController(const pin_t& pin, uint8_t bitRes)
 {
-  switch (res) {
-    case Low:
-      return new LEDController<uint8_t, Low>(pin);
-      break;
-    case Medium:
-      return new LEDController<uint16_t, Medium>(pin);
-      break;
-    case High:
-      return new LEDController<uint16_t, High>(pin);
-      break;
-    case Custom:
-      static_assert((Custom <= 65536), "custom resolution must be 65536 or less");
-      if (Custom <= 256)
-        return new LEDController<uint8_t, Custom>(pin);
-      else
-        return new LEDController<uint16_t, Custom>(pin);
+  assert((bitRes <= 12) && "resolution must be 12 bits or less");
+  
+  // TODO: Determine hardware resolution from architecture and allocated pin numbers
+  static const uint8_t hardware_res = 8;
+  
+  switch (bitRes) {
+    CREATE_CONTROLLER_CASE(LEDController, hardware_res, 2, uint8_t, pin)
+    CREATE_CONTROLLER_CASE(LEDController, hardware_res, 4, uint8_t, pin)
+    CREATE_CONTROLLER_CASE(LEDController, hardware_res, 8, uint8_t, pin)
+    CREATE_CONTROLLER_CASE(LEDController, hardware_res, 10, uint16_t, pin)
+    CREATE_CONTROLLER_CASE(LEDController, hardware_res, 12, uint16_t, pin)
+    CREATE_CONTROLLER_CASE(LEDController, hardware_res, 16, uint16_t, pin)
+    default:
+      assert(! "resolution must be either 2, 4, 8, 10, 12 or 16 bits");
       break;
   }
   

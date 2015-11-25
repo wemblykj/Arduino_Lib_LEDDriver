@@ -5,194 +5,165 @@
 #define _RGBCONTROLLER_h
 
 #include "../IRGBController.h"
+#include "ResolutionPolicies.h"
+
+#include "Common.h"
 
 namespace LEDDriver {
 
-template<typename T_StorageType, uint16_t T_IntensityLevels>
-class RGBController : virtual public IRGBController
-{
+//! Policy driven RGBController
+/**
+ * The software resolution can be higher or lower than the hardware resolution and will be conveted as appropriate. 
+ * Higher software resolutions may be useful for retaining precision when mixing RGB intensities with the master 
+ * intensity or simply for implementing hardware independent code
+ *
+ * \tparam T_HardwareBitResolution The bit resolution of the hardware (e.g. 8, 10 or 12 bits)
+ * \tparam T_SoftwareBitResolution The bit resolution of the software intensity representation (should be a factor of 2)
+ * \tparam T_SoftwareStorageType The storage type of internal software intensities  this must be large enough to 
+ *                               accomodate the representation of an intensity of T_SoftwareBitResolution bits)
+ * \tparam T_HardwareResolutionPolicy
+ * \tparam T_SoftwareResolutionPolicy
+ */
+template<
+  uint8_t T_HardwareBitResolution = 8,
+  uint8_t T_SoftwareBitResolution = 8,
+  typename T_SoftwareStorageType = uint8_t,
+  template <uint8_t, typename> class T_HardwareResolutionPolicy = DefaultHardwareResolutionPolicy,
+  template <uint8_t, typename> class T_SoftwareResolutionPolicy = DefaultSoftwareResolutionPolicy
+>
+class RGBController 
+  : public T_HardwareResolutionPolicy<T_HardwareBitResolution, T_SoftwareStorageType>
+  , public T_SoftwareResolutionPolicy<T_SoftwareBitResolution, T_SoftwareStorageType>
+  , virtual public IRGBController
+{ 
+protected:
+  typedef T_HardwareResolutionPolicy<T_HardwareBitResolution, T_SoftwareStorageType> HardwareResolutionPolicy;
+  typedef T_SoftwareResolutionPolicy<T_SoftwareBitResolution, T_SoftwareStorageType> SoftwareResolutionPolicy;
+  
 public:
-  RGBController(const PinDescriptor& pinDescriptor);
+  RGBController(const PinDescriptor& pinDescriptor)
+    : IRGBController()
+    , mMasterIntensity(0)
+  {
+    mPinData[RED].pin = pinDescriptor.rPin;
+    mPinData[GREEN].pin = pinDescriptor.gPin;
+    mPinData[BLUE].pin = pinDescriptor.bPin;
+  }
   
   virtual ~RGBController() {}
   
   //
   // IRGBController implementation
   
-  struct PinDescriptor getPins() const override;
-  void setRGBI(float r, float g, float b, float i) override; 
+  struct PinDescriptor getPins() const override
+  { return PinDescriptor(mPinData[RED].pin, mPinData[GREEN].pin, mPinData[BLUE].pin); }
+  
+  void setRGBI(float r, float g, float b, float i) override
+  {
+    setRGBI(SoftwareResolutionPolicy::fromFloat(r), SoftwareResolutionPolicy::fromFloat(g), SoftwareResolutionPolicy::fromFloat(b), SoftwareResolutionPolicy::fromFloat(i));
+  }
   
   // IRGBIntensity implementation
-  void getRGB(float& r, float& g, float& b) const override;
-  void setRGB(float r, float g, float b) override; 
-  void setRGB(float i) override;
-  float getRed() const override;
-  void setRed(float r) override;
-  float getGreen() const override;
-  void setGreen(float g) override;
-  float getBlue() const override;
-  void setBlue(float b) override;
+  void getRGB(float& r, float& g, float& b) const override
+  {
+    r = SoftwareResolutionPolicy::toFloat(mPinData[RED].intensity);
+    g = SoftwareResolutionPolicy::toFloat(mPinData[GREEN].intensity);
+    b = SoftwareResolutionPolicy::toFloat(mPinData[BLUE].intensity);
+  }
+  
+  void setRGB(float r, float g, float b) override
+  { setRGB(SoftwareResolutionPolicy::fromFloat(r), SoftwareResolutionPolicy::fromFloat(g), SoftwareResolutionPolicy::fromFloat(b)); }
+
+  void setRGB(float i) override
+  {
+    const T_SoftwareStorageType ii = SoftwareResolutionPolicy::fromFloat(i);
+    setRGBI(ii, ii, ii, mMasterIntensity);
+  }
+  
+  float getRed() const override
+  { return SoftwareResolutionPolicy::toFloat(mPinData[RED].intensity); }
+  
+  void setRed(float r) override
+  {
+    mPinData[RED].intensity = SoftwareResolutionPolicy::fromFloat(r);
+    update();
+  }
+  
+  float getGreen() const override
+  { return SoftwareResolutionPolicy::toFloat(mPinData[GREEN].intensity); }
+  
+  void setGreen(float g) override
+  {
+    mPinData[GREEN].intensity = SoftwareResolutionPolicy::fromFloat(g);
+    update();
+  }
+  
+  float getBlue() const override
+  { return SoftwareResolutionPolicy::toFloat(mPinData[BLUE].intensity); }
+  
+  void setBlue(float b) override
+  {
+    mPinData[BLUE].intensity = SoftwareResolutionPolicy::fromFloat(b);
+    update();
+  }
   
   //
   // ILEDIntensity implementation
-  float getIntensity() const override;
-  void setIntensity(float intensity) override;
-  
+  float getIntensity() const override
+  { return SoftwareResolutionPolicy::toFloat(mMasterIntensity); }
+
+  void setIntensity(float i) override
+  {
+    mMasterIntensity = SoftwareResolutionPolicy::fromFloat(i);
+    update();
+  }
+ 
   //
   // IController implementation
-  void reset() override;
+  void reset() override
+  {
+    setRGBI((T_SoftwareStorageType)0, (T_SoftwareStorageType)0, (T_SoftwareStorageType)0, (T_SoftwareStorageType)0);
+  }
   
 protected:
-  void setRGBI(T_StorageType r, T_StorageType g, T_StorageType b, T_StorageType i);
-  void setRGB(T_StorageType r, T_StorageType g, T_StorageType b);
-  void update();
+  struct PinData {
+    PinData() : intensity(0) {}
+    pin_t pin;
+    T_SoftwareStorageType intensity;
+  };
+  
+  void setRGBI(T_SoftwareStorageType r, T_SoftwareStorageType g, T_SoftwareStorageType b, T_SoftwareStorageType i)
+  {
+    mPinData[RED].intensity = r;
+    mPinData[GREEN].intensity = g;
+    mPinData[BLUE].intensity = b;
+    mMasterIntensity = i;
+    update();
+  }
+  
+  void setRGB(T_SoftwareStorageType r, T_SoftwareStorageType g, T_SoftwareStorageType b)
+  {
+    setRGBI(r, g, b, mMasterIntensity);
+  }
+  
+  void update()
+  {
+    updatePin(mPinData[RED]);
+    updatePin(mPinData[GREEN]);
+    updatePin(mPinData[BLUE]);
+  }
+  
+  void updatePin(const struct PinData& pinData)
+  { analogWrite(pinData.pin, HardwareResolutionPolicy::encode(SoftwareResolutionPolicy::normalize(pinData.intensity))); }
   
 private:
   enum Pin {
     RED, GREEN, BLUE, NUM_PINS 
   };
   
-  struct PinData {
-    PinData() : intensity(0) {}
-    pin_t pin;
-    T_StorageType intensity;
-  } mPinData[NUM_PINS];
-  
-  T_StorageType mMasterIntensity;
+  PinData mPinData[NUM_PINS];
+  T_SoftwareStorageType mMasterIntensity;
 };
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-RGBController<T_StorageType, T_IntensityLevels>::RGBController(const PinDescriptor& pinDescriptor)
-  : IRGBController()
-  , mMasterIntensity(0)
-{
-  mPinData[RED].pin = pinDescriptor.rPin;
-  mPinData[GREEN].pin = pinDescriptor.gPin;
-  mPinData[BLUE].pin = pinDescriptor.bPin;
-}
-  
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-struct IRGBController::PinDescriptor RGBController<T_StorageType, T_IntensityLevels>::getPins() const
-{ 
-  return PinDescriptor(mPinData[RED].pin, mPinData[GREEN].pin, mPinData[BLUE].pin); 
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::getRGB(float& r, float& g, float& b) const
-{
-  r = (float)mPinData[RED].intensity / (float)T_IntensityLevels;
-  g = (float)mPinData[GREEN].intensity / (float)T_IntensityLevels;
-  b = (float)mPinData[BLUE].intensity / (float)T_IntensityLevels;
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setRGBI(float r, float g, float b, float i)
-{
-  const T_StorageType ri = static_cast<int>((r * (float)T_IntensityLevels));
-  const T_StorageType gi = static_cast<int>(g * (float)T_IntensityLevels);
-  const T_StorageType bi = static_cast<int>(b * (float)T_IntensityLevels);
-  const T_StorageType ii = static_cast<int>(i * (float)T_IntensityLevels);
-  setRGBI(ri, gi, bi, ii);
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setRGB(float r, float g, float b)
-{
-  const T_StorageType ri = static_cast<int>(r * T_IntensityLevels);
-  const T_StorageType gi = static_cast<int>(g * T_IntensityLevels);
-  const T_StorageType bi = static_cast<int>(b * T_IntensityLevels);
-  setRGB(ri, gi, bi);
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setRGB(float i)
-{
-  const T_StorageType ii = static_cast<int>(i * (float)T_IntensityLevels);
-  setRGBI(ii, ii, ii, mMasterIntensity);
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-float RGBController<T_StorageType, T_IntensityLevels>::getRed() const
-{
-  return (float)mPinData[RED].intensity / (float)T_IntensityLevels;
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setRed(float r)
-{
-  const T_StorageType ri = static_cast<int>(r * T_IntensityLevels);
-  mPinData[RED].intensity = ri;
-  update();
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-float RGBController<T_StorageType, T_IntensityLevels>::getGreen() const
-{
-  return (float)mPinData[GREEN].intensity / (float)T_IntensityLevels;
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setGreen(float g)
-{
-  const T_StorageType gi = static_cast<int>(g * T_IntensityLevels);
-  mPinData[GREEN].intensity = gi;
-  update();
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-float RGBController<T_StorageType, T_IntensityLevels>::getBlue() const
-{
-  return (float)mPinData[BLUE].intensity / (float)T_IntensityLevels;
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setBlue(float b)
-{
-  const T_StorageType bi = static_cast<int>(b * T_IntensityLevels);
-  mPinData[BLUE].intensity = bi;
-  update();
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-float RGBController<T_StorageType, T_IntensityLevels>::getIntensity() const
-{
-  return (float)mMasterIntensity / (float)T_IntensityLevels;
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setIntensity(float i)
-{
-  const T_StorageType ii = static_cast<int>(i * T_IntensityLevels);
-  mMasterIntensity = ii;
-  update();
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::reset()
-{
-  setRGBI((T_StorageType)0, (T_StorageType)0, (T_StorageType)0, (T_StorageType)0);
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::update()
-{
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setRGBI(T_StorageType r, T_StorageType g, T_StorageType b, T_StorageType i)
-{
-  mPinData[RED].intensity = r;
-  mPinData[GREEN].intensity = g;
-  mPinData[BLUE].intensity = b;
-  mMasterIntensity = i;
-  update();
-}
-
-template<typename T_StorageType, uint16_t T_IntensityLevels> inline
-void RGBController<T_StorageType, T_IntensityLevels>::setRGB(T_StorageType r, T_StorageType g, T_StorageType b)
-{
-  setRGBI(r, g, b, mMasterIntensity);
-}
 
 } // namespace LEDDriver
 

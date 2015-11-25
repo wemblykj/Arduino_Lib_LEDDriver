@@ -9,8 +9,8 @@ float intensity = 0.0f;
 float step = 0.1f;
 
 void setup() {
-  // Create a new LED controller to drive the LED
-  ILEDController* ledController = createLEDController(LED_PIN, Low);
+  // Create a new LED controller with 8 bit internal resolution to drive the LED
+  ILEDController* ledController = createLEDController(LED_PIN, 8);
 }
 
 void loop() {

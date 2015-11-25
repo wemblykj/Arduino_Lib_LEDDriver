@@ -14,8 +14,8 @@ float step = 0.1f;
 void setup() {
   // Define the hardware pins for driving R, G and B
   IRGBController::PinDescriptor pd(R_PIN, G_PIN, B_PIN);
-  // Create a new RGB controller
-  IRGBController* rgbController = createRGBController(pd, Low);
+  // Create a new RGB controller with 10 bit internal resolution
+  IRGBController* rgbController = createRGBController(pd, 10);
 }
 
 void loop() {
