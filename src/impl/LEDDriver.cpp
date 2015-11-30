@@ -1,11 +1,11 @@
-#include "..\LEDDriver.h"
+#include "LEDDriver.h"
 
 #include "LEDController.h"
 #include "RGBController.h"
 
-#include "..\leddriver\ResolutionPolicies.h"
+#include "leddriver/ResolutionPolicies.h"
 
-#include "..\leddriver\Common.h"
+#include "leddriver/Common.h"
 
 namespace LEDDriver {
 

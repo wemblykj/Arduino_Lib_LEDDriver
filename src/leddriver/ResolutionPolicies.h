@@ -4,7 +4,7 @@
 #ifndef _RESOLUTIONPOLICIES_h
 #define _RESOLUTIONPOLICIES_h
 
-#include "Common.h"
+#include "leddriver/Common.h"
 
 namespace LEDDriver {
 
@@ -50,10 +50,11 @@ class DefaultHardwareResolutionPolicy
  
   static_assert((T_HardwareBitResolution == 8 || T_HardwareBitResolution == 10 || T_HardwareBitResolution == 12), "T_HardwareBitResolution must be either 8, 10 or 12"); 
   static_assert((storage_bit_resolution<=16), "T_SoftwareBitResolution must be 16 or less");
+
 protected:
   static uint16_t encode(T_SoftwareStorageType normalizedValue)
   { 
-    const auto rshift = storage_bit_resolution-T_HardwareBitResolution;
+    int rshift = storage_bit_resolution-T_HardwareBitResolution;
     return (rshift<0) ? (normalizedValue<<-rshift) : normalizedValue>>rshift;
   }
 };

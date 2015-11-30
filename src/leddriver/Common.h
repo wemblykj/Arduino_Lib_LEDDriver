@@ -9,6 +9,14 @@
 
 #include <Arduino.h>
 
+#ifndef nullptr
+#define nullptr NULL
+#endif
+
+#ifndef static_assert
+#define static_assert(x, y)
+#endif
+
 namespace LEDDriver {
 
 typedef uint8_t pin_t;

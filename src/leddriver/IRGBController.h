@@ -4,11 +4,11 @@
 #ifndef _IRGBCONTROLLER_h
 #define _IRGBCONTROLLER_h
 
-#include "IController.h"
-#include "ILEDIntensity.h"
-#include "IRGBIntensity.h"
+#include "leddriver/IController.h"
+#include "leddriver/ILEDIntensity.h"
+#include "leddriver/IRGBIntensity.h"
 
-#include "Common.h"
+#include "leddriver/Common.h"
 
 namespace LEDDriver {
 

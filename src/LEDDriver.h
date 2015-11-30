@@ -3,11 +3,6 @@
 
 #include "leddriver/Common.h"
 
-// Set default custom resolution, can be overridden by sketch
-#ifndef CUSTOM_RESOLUTION
-#define CUSTOM_RESOLUTION 512
-#endif
-
 namespace LEDDriver {
 
 //! Create an RGB controller with a predefined intensity resolution

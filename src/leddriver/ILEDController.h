@@ -4,10 +4,10 @@
 #ifndef _ILEDCONTROLLER_h
 #define _ILEDCONTROLLER_h
 
-#include "IController.h"
-#include "ILEDIntensity.h"
+#include "leddriver/IController.h"
+#include "leddriver/ILEDIntensity.h"
 
-#include "Common.h"
+#include "leddriver/Common.h"
 
 namespace LEDDriver {
 
