@@ -25,10 +25,10 @@ protected:
   typedef T_SoftwareStorageType storage_t;
   
   static storage_t fromFloat(float value)
-  { return static_cast<storage_t>(value * (float)(1<<T_SoftwareBitResolution)); }
+  { return static_cast<storage_t>(value * (float)(1l<<T_SoftwareBitResolution)); }
   
   static float toFloat(storage_t value)
-  { return (float)value / (float)(1<<T_SoftwareBitResolution); }
+  { return (float)value / (float)(1l<<T_SoftwareBitResolution); }
   
   //! Shift software value so that msb of value is in msb of storage_t
   // Partial specialization would appear to be a pain in the arse so just use sizeof(storage_t), this *should* resolve to a constant value
